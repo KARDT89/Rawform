@@ -17,6 +17,8 @@ export const usersTable = pgTable("users", {
 
   profileImageUrl: text("profile_image_url"),
 
+  password: text('password'),
+
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").$onUpdate(() => new Date()),
 });

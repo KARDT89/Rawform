@@ -1,28 +1,37 @@
-import { db } from "@repo/database";
-import { usersTable } from "@repo/database/schema";
-import { env } from "../env";
-import { googleOAuth2Client } from "../clients/google-oauth";
-import { GetAuthenticationMethodOutputSchema } from "./model";
+import db, { eq } from "@repo/database";
+import { usersTable } from "@repo/database/models/user";
+import {
+  type CreateUserWithEmailAndPasswordInputType,
+  createUserWithEmailAndPasswordInput,
+} from "./model";
+import ApiError from "../utils/api-errors";
+import { hashPassword } from "../utils/password-hashing";
 
 class UserService {
-  public async getAuthenticationMethods(): Promise<
-    ReadonlyArray<GetAuthenticationMethodOutputSchema>
-  > {
-    const supportedAuthenticationProviders: GetAuthenticationMethodOutputSchema[] = [];
+  private async getUserByEmail(email: string) {
+    const result = await db.select().from(usersTable).where(eq(usersTable.email, email));
+    if (!result || result.length === 0) return null;
+    return result[0];
+  }
 
-    const isGoogleConfigured = !!(env.GOOGLE_OAUTH_CLIENT_ID && env.GOOGLE_OAUTH_CLIENT_SECRET);
+  public async createUserWithEmailAndPassword(payload: CreateUserWithEmailAndPasswordInputType) {
+    const { fullName, email, password } =
+      await createUserWithEmailAndPasswordInput.parseAsync(payload);
 
-    if (isGoogleConfigured) {
-      const url = googleOAuth2Client.generateAuthUrl();
-      supportedAuthenticationProviders.push({
-        provider: "GOOGLE_OAUTH",
-        displayName: "Google",
-        displayText: "Signin with Google",
-        authUrl: url,
-      });
-    }
+    const existingUserWithEmail = await this.getUserByEmail(email);
+    if (existingUserWithEmail) ApiError.conflict(`User with Email:${email} already exists`);
 
-    return supportedAuthenticationProviders;
+    const hashedPassword = await hashPassword(password);
+
+    const userInsertResult = await db
+      .insert(usersTable)
+      .values({ email, fullName, password: hashedPassword })
+      .returning({ id: usersTable.id });
+
+    if (!userInsertResult || userInsertResult.length === 0 || !userInsertResult[0]?.id)
+      ApiError.badRequest("Something went wrong while creating a user");
+
+    return { id: userInsertResult[0]!.id };
   }
 }
 
