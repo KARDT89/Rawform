@@ -45,7 +45,7 @@ export function LoginForm({
           email: email,
           password: password
         })
-        console.log(`user created with id ${id}`)
+        console.log(`user logged in with id ${id}`)
       }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>

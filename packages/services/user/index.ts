@@ -20,6 +20,29 @@ class UserService {
     return result[0];
   }
 
+  private async verifyUserToken(token: string): Promise<GenerateUserTokenPayloadType> {
+    try {
+      const verificationResult = JWT.verify(token, env.JWT_SECRET) as GenerateUserTokenPayloadType;
+      return verificationResult;
+    } catch (error) {
+      throw ApiError.unauthorized("Invalid or expired token");
+    }
+  }
+
+  private async getUserInfoById(id: string) {
+    const user = await db
+      .select({
+        id: usersTable.id,
+        email: usersTable.email,
+        fullName: usersTable.fullName,
+        profileImageUrl: usersTable.profileImageUrl,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, id));
+    if (!user || user.length === 0) throw ApiError.notFound(`User with ID:${id} does not exist`);
+    return user[0]!;
+  }
+
   private async generateUserToken(payload: GenerateUserTokenPayloadType) {
     const { id } = await generateUserTokenPayload.parseAsync(payload);
     const token = JWT.sign({ id }, env.JWT_SECRET);
@@ -65,6 +88,12 @@ class UserService {
     const { token } = await this.generateUserToken({ id: existingUserWithEmail.id });
 
     return { id: existingUserWithEmail.id, token };
+  }
+
+  public async verifyAndDecodeUserToken(token: string) {
+    const { id } = await this.verifyUserToken(token);
+    const userInfo = await this.getUserInfoById(id);
+    return { ...userInfo };
   }
 }
 

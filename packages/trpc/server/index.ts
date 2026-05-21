@@ -3,7 +3,6 @@ import { router } from "./trpc";
 import { authRouter } from "./routes/auth/route";
 
 export const serverRouter = router({
- 
   auth: authRouter,
 });
 

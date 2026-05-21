@@ -1,12 +1,14 @@
 import { userService } from "../../services";
 import { publicProcedure, router } from "../../trpc";
-import { setAuthenticationCookie } from "../../utils/cookie";
+import { getAuthenticationCookie, setAuthenticationCookie } from "../../utils/cookie";
 import { generatePath } from "../../utils/path-generator";
 import {
   createUserWithEmailAndPasswordInputModel,
   createUserWithEmailAndPasswordOutputModel,
+  getLoggedInUserInfoOutputModel,
+  getLoggedInUserInfoInputModel,
   loginUserWithEmailAndPasswordInputModel,
-  loginUserWithEmailAndPasswordOutputModel
+  loginUserWithEmailAndPasswordOutputModel,
 } from "./model";
 
 const TAGS = ["Authentication"];
@@ -32,17 +34,20 @@ export const authRouter = router({
         password,
       });
 
-      setAuthenticationCookie(ctx, token)
+      setAuthenticationCookie(ctx, token);
 
       return { id };
     }),
-    loginWithEmailAndPassword: publicProcedure.meta({
+  loginWithEmailAndPassword: publicProcedure
+    .meta({
       openapi: {
         method: "POST",
         path: getPath("/loginWithEmailAndPassword"),
         tags: TAGS,
       },
-    }).input(loginUserWithEmailAndPasswordInputModel).output(loginUserWithEmailAndPasswordOutputModel)
+    })
+    .input(loginUserWithEmailAndPasswordInputModel)
+    .output(loginUserWithEmailAndPasswordOutputModel)
     .mutation(async ({ input, ctx }) => {
       const { email, password } = input;
 
@@ -50,9 +55,27 @@ export const authRouter = router({
         email,
         password,
       });
-
-      setAuthenticationCookie(ctx, token)
+      setAuthenticationCookie(ctx, token);
 
       return { id };
+    }),
+  getLoggedInUserInfo: publicProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: getPath("/getLoggedInUserInfo"),
+        tags: TAGS,
+      },
+    })
+    .input(getLoggedInUserInfoInputModel)
+    .output(getLoggedInUserInfoOutputModel)
+    .query(async ({ ctx }) => {
+      const userToken = getAuthenticationCookie(ctx);
+      console.log("userToken", userToken)
+      if (!userToken) throw new Error("User is not authenticated");
+
+      const { id, email, fullName, profileImageUrl } =
+        await userService.verifyAndDecodeUserToken(userToken);
+      return { id, email, fullName, profileImageUrl: profileImageUrl || undefined };
     }),
 });
