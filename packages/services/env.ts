@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 const envSchema = z.object({
-  DATABASE_URL: z.string()
+  DATABASE_URL: z.string().describe("URL for connecting to the database"),
+  JWT_SECRET: z.string().describe("Secret key used for signing JWT tokens"),
 });
 
 function createEnv(env: NodeJS.ProcessEnv) {
