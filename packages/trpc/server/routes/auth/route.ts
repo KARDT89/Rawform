@@ -5,6 +5,8 @@ import { generatePath } from "../../utils/path-generator";
 import {
   createUserWithEmailAndPasswordInputModel,
   createUserWithEmailAndPasswordOutputModel,
+  loginUserWithEmailAndPasswordInputModel,
+  loginUserWithEmailAndPasswordOutputModel
 } from "./model";
 
 const TAGS = ["Authentication"];
@@ -26,6 +28,25 @@ export const authRouter = router({
 
       const { id, token } = await userService.createUserWithEmailAndPassword({
         fullName,
+        email,
+        password,
+      });
+
+      setAuthenticationCookie(ctx, token)
+
+      return { id };
+    }),
+    loginWithEmailAndPassword: publicProcedure.meta({
+      openapi: {
+        method: "POST",
+        path: getPath("/loginWithEmailAndPassword"),
+        tags: TAGS,
+      },
+    }).input(loginUserWithEmailAndPasswordInputModel).output(loginUserWithEmailAndPasswordOutputModel)
+    .mutation(async ({ input, ctx }) => {
+      const { email, password } = input;
+
+      const { id, token } = await userService.loginWithEmailAndPassword({
         email,
         password,
       });

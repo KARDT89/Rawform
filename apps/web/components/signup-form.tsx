@@ -18,6 +18,7 @@ import {
 import { Input } from "~/components/ui/input"
 import { SubmitHandler , useForm } from "react-hook-form"
 import { useSignup } from "~/hooks/api/auth"
+import { Loader2 } from "lucide-react"
 
 export function SignupForm({
   className,
@@ -98,10 +99,17 @@ export function SignupForm({
               </Field>
               <Field>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating..." : "Create Account"}
+                  {isSubmitting ? (
+                    <>
+                      Creating new Account
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    "Sign Up"
+                  )}
                 </Button>
                 <FieldDescription className="text-center">
-                  Already have an account? <a href="#">Sign in</a>
+                  Already have an account? <a href="/login">Sign in</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>

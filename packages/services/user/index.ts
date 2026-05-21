@@ -5,11 +5,13 @@ import {
   createUserWithEmailAndPasswordInput,
   generateUserTokenPayload,
   GenerateUserTokenPayloadType,
+  LoginUserWithEmailAndPasswordInputType,
+  LoginUserWithEmailAndPasswordInput,
 } from "./model";
 import ApiError from "../utils/api-errors";
-import { hashPassword } from "../utils/password-hashing";
+import { comparePassword, hashPassword } from "../utils/password-hashing";
 import * as JWT from "jsonwebtoken";
-import {env} from '../env'
+import { env } from "../env";
 
 class UserService {
   private async getUserByEmail(email: string) {
@@ -20,8 +22,8 @@ class UserService {
 
   private async generateUserToken(payload: GenerateUserTokenPayloadType) {
     const { id } = await generateUserTokenPayload.parseAsync(payload);
-    const token = JWT.sign({id}, env.JWT_SECRET)
-    return {token}
+    const token = JWT.sign({ id }, env.JWT_SECRET);
+    return { token };
   }
 
   public async createUserWithEmailAndPassword(payload: CreateUserWithEmailAndPasswordInputType) {
@@ -43,11 +45,27 @@ class UserService {
 
     const userId = userInsertResult[0]!.id;
 
-    const {token} = await this.generateUserToken({ id: userId });
+    const { token } = await this.generateUserToken({ id: userId });
 
     return { id: userId, token };
   }
-}
 
+  public async loginWithEmailAndPassword(payload: LoginUserWithEmailAndPasswordInputType) {
+    const { email, password } = await LoginUserWithEmailAndPasswordInput.parseAsync(payload);
+
+    const existingUserWithEmail = await this.getUserByEmail(email);
+    if (!existingUserWithEmail)
+      throw ApiError.unauthorized(`User with email: ${email} does not exist`);
+
+    if (!existingUserWithEmail.password) throw ApiError.unauthorized("Invalid email or password");
+
+    const isPasswordValid = await comparePassword(password, existingUserWithEmail.password);
+    if (!isPasswordValid) throw ApiError.unauthorized("Invalid email or password");
+
+    const { token } = await this.generateUserToken({ id: existingUserWithEmail.id });
+
+    return { id: existingUserWithEmail.id, token };
+  }
+}
 
 export default UserService;
