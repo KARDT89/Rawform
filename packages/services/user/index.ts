@@ -43,10 +43,11 @@ class UserService {
 
     const userId = userInsertResult[0]!.id;
 
-    const token = await this.generateUserToken({ id: userId });
+    const {token} = await this.generateUserToken({ id: userId });
 
     return { id: userId, token };
   }
 }
+
 
 export default UserService;
