@@ -19,6 +19,7 @@ import { Input } from "~/components/ui/input"
 import { SubmitHandler , useForm } from "react-hook-form"
 import { useSignup } from "~/hooks/api/auth"
 import { Loader2 } from "lucide-react"
+import {useRouter} from 'next/navigation';
 
 export function SignupForm({
   className,
@@ -26,6 +27,7 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
 
   const { createUserWithEmailAndPasswordAsync } = useSignup()
+  const router = useRouter()
 
   type SignupFormValues = {
     name: string,
@@ -52,6 +54,7 @@ export function SignupForm({
     })
 
     console.log(`user created with id ${id}`)
+    router.replace('/dashboard')
   }
 
   return (

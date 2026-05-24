@@ -20,17 +20,23 @@ import { Input } from "~/components/ui/input"
 import { useLogin } from "~/hooks/api/auth"
 import { SubmitHandler , useForm } from "react-hook-form"
 import {Loader2} from "lucide-react"
+import {useRouter} from 'next/navigation';
+
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const { loginUserWithEmailAndPasswordAsync } = useLogin()
+  const router = useRouter()
 
   type LoginFormData = {
     email: string,
     password: string,
   }
+
+
+ 
 
    const {register, handleSubmit, formState: {isSubmitting}} = useForm<LoginFormData>({
       defaultValues: {
@@ -46,6 +52,7 @@ export function LoginForm({
           password: password
         })
         console.log(`user logged in with id ${id}`)
+        router.replace('/dashboard')
       }
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
