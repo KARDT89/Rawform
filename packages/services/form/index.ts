@@ -1,7 +1,8 @@
 import {db} from "@repo/database";
-import { type CreateFormInputType, createFormInput } from "./model";
+import { type CreateFormInputType, ListFormsByUserIdInputType, createFormInput, listFormsByUserIdInput } from "./model";
 import { formsTable } from "@repo/database/models/form";
 import ApiError from "../utils/api-errors";
+import { eq } from "@repo/database";
 
 class FormService {
     
@@ -19,6 +20,20 @@ class FormService {
         if(!result || result.length === 0 || !result[0]?.id) throw new ApiError(500, "Failed to create form");
 
         return {id: result[0].id};
+    }
+
+    public async listFormsByUserId(payload: ListFormsByUserIdInputType) {
+        const { userId } = await listFormsByUserIdInput.parseAsync(payload);
+
+        const forms = await db.select({
+            id: formsTable.id,
+            title: formsTable.title,
+            description: formsTable.description,
+            createdAt: formsTable.createdAt,
+            updatedAt: formsTable.updatedAt,
+        }).from(formsTable).where(eq(formsTable.createdBy, userId));
+        
+        return forms;
     }
 }
 

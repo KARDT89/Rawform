@@ -1,7 +1,7 @@
 import { trpc } from "~/trpc/client";
 
 export const useCreateForm = () => {
-  const utils = trpc.useUtils()
+  const utils = trpc.useUtils();
   const {
     mutateAsync: createFormAsync,
     mutate: createForm,
@@ -23,5 +23,25 @@ export const useCreateForm = () => {
     isIdle,
     isSuccess,
     status,
+  };
+};
+
+export const useListForms = () => {
+
+  const {
+    data: forms,
+    error,
+    isFetched,
+    isFetching,
+    isLoading,
+    status
+  } = trpc.form.listForms.useQuery();
+  return {
+    forms,
+    error,
+    isFetched,
+    isFetching,
+    isLoading,
+    status
   };
 };
