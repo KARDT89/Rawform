@@ -15,6 +15,20 @@
       "when": 1779093545529,
       "tag": "0001_true_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779696384161,
+      "tag": "0002_quiet_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1779697057584,
+      "tag": "0003_known_stardust",
+      "breakpoints": true
     }
   ]
 }
