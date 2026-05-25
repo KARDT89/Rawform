@@ -1,9 +1,7 @@
-import React from 'react'
-
-const page = () => {
+export default function Page() {
   return (
-    <div>page</div>
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <h1 className="text-2xl font-semibold">Dashboard</h1>
+    </div>
   )
 }
-
-export default page
