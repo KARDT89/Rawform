@@ -65,6 +65,7 @@ export const authRouter = router({
         method: "GET",
         path: getPath("/getLoggedInUserInfo"),
         tags: TAGS,
+        protect: true
       },
     })
     .input(getLoggedInUserInfoInputModel)
