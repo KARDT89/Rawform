@@ -54,7 +54,7 @@ export default function FormsPage() {
                 </TableCell>
                 <TableCell>
                   <Button variant="ghost" size="icon" asChild>
-                    <Link href={`/dashboard/form/${form.id}`}>
+                    <Link href={`/dashboard/forms/${form.id}`}>
                       <Pencil className="h-4 w-4" />
                     </Link>
                   </Button>
