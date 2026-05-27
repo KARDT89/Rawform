@@ -59,7 +59,7 @@ export default function FormBuilderPage({
       {fieldsLoading ? (
         <div className="flex flex-col gap-2">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-[68px] w-full rounded-lg" />
+            <Skeleton key={i} className="h-17 w-full rounded-lg" />
           ))}
         </div>
       ) : sortedFields.length === 0 ? (
