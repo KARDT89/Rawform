@@ -1,7 +1,14 @@
 import { router, authenticatedProcedure } from "../../trpc";
 import { generatePath } from "../../utils/path-generator";
-import { formService } from "../../services";
-import { createFormInputModel, createFormOutputModel, listFormsByUserIdOutputModel } from "./model";
+import { formService, formFieldService } from "../../services";
+import { createFormInputModel, createFormOutputModel, listFormsByUserIdOutputModel, createFieldInput,
+  createFieldOutput,
+  getFieldsInput,
+  getFieldsOutput,
+  updateFieldInput,
+  updateFieldOutput,
+  deleteFieldInput,
+  deleteFieldOutput, } from "./model";
 import { z } from "zod";
 
 const TAGS = ["Form"];
@@ -45,5 +52,64 @@ export const formRouter = router({
         userId: ctx.user.id,
       });
       return forms;
+    }),
+    createField: authenticatedProcedure
+    .meta({
+      openapi: {
+        method: "POST",
+        path: getPath("/createField"),
+        tags: TAGS,
+        protect: true,
+      },
+    })
+    .input(createFieldInput)
+    .output(createFieldOutput)
+    .mutation(async ({ input }) => {
+      return await formFieldService.createField(input);
+    }),
+
+  getFields: authenticatedProcedure
+    .meta({
+      openapi: {
+        method: "GET",
+        path: getPath("/getFields"),
+        tags: TAGS,
+        protect: true,
+      },
+    })
+    .input(getFieldsInput)
+    .output(getFieldsOutput)
+    .query(async ({ input }) => {
+      return await formFieldService.getFields({formId: input.formId });
+    }),
+
+  updateField: authenticatedProcedure
+    .meta({
+      openapi: {
+        method: "PATCH",
+        path: getPath("/updateField"),
+        tags: TAGS,
+        protect: true,
+      },
+    })
+    .input(updateFieldInput)
+    .output(updateFieldOutput)
+    .mutation(async ({ input }) => {
+      return await formFieldService.updateField(input);
+    }),
+
+  deleteField: authenticatedProcedure
+    .meta({
+      openapi: {
+        method: "DELETE",
+        path: getPath("/deleteField"),
+        tags: TAGS,
+        protect: true,
+      },
+    })
+    .input(deleteFieldInput)
+    .output(deleteFieldOutput)
+    .mutation(async ({ input }) => {
+      return await formFieldService.deleteField(input);
     }),
 });
